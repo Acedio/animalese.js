@@ -2,8 +2,6 @@
 <head>
     <title>animalese_js</title>
 </head>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<script src="lz-string-1.3.3-min.js"></script>
 <script src="riffwave.js"></script>
 <script>
 var load = function() {
@@ -11,18 +9,39 @@ var load = function() {
     xhr.open('GET', '/animalese.wav');
     xhr.responseType = 'arraybuffer';
     xhr.onload = function(e) {
-        var audio = new Audio();
-        var wave = new RIFFWAVE();
-        var data_array = new Uint8Array(this.response);
+        var letters = new Uint8Array(this.response);
+        var script = document.getElementById("text").value;
         var data = [];
-        for (var i = 44; i < data_array.length; i++) {
-            data[i-44] = data_array[i];
-        }
-        document.getElementById("text").value = data.length;
 
-        wave.header.sampleRate = 44100;
-        wave.header.numChannels = 1;
+        var sample_freq = 44100;
+        var channels = 1;
+        var letter_secs = 0.15;
+        var letter_spoken_secs = 0.075;
+        var letter_size = Math.floor(letter_secs * channels * sample_freq);
+        var letter_spoken_size = Math.floor(letter_spoken_secs * channels * sample_freq);
+
+        for (var c_index = 0; c_index < script.length; c_index++) {
+            var c_value = script.toUpperCase()[c_index];
+            if (c_value >= 'A' && c_value <= 'Z') {
+                var letter_loc = letter_size * (c_value.charCodeAt(0) - 'A'.charCodeAt(0));
+
+                for (var i = 0; i < letter_spoken_size; i++) {
+                    data[c_index*letter_spoken_size + i] =
+                        letters[44 + letter_loc + i];
+                }
+            } else { // non pronouncable character or space
+                for (var i = 0; i < letter_spoken_size; i++) {
+                    data[c_index*letter_spoken_size + i] = 127;
+                }
+            }
+        }
+
+        var wave = new RIFFWAVE();
+        wave.header.sampleRate = sample_freq;
+        wave.header.numChannels = channels;
         wave.Make(data);
+
+        var audio = new Audio();
         audio.src = wave.dataURI;
         audio.play();
     }
@@ -30,8 +49,8 @@ var load = function() {
 }
 </script>
 <body>
-    <p>Testing</p>
-    <textarea id="text" rows"4" cols="50">Testing out the Animalese subsystem...</textarea>
-    <button type="button" onclick="load()">Animalese</button>
+    <h2>Animalese</h2>
+    <textarea id="text" rows"4" cols="50">Testing out animalese_js. Did it work?</textarea>
+    <button type="button" onclick="load()">Animalese!</button>
 </body>
 </html>
