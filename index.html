@@ -27,7 +27,7 @@ function dataURItoBlob(dataURI) {
     return new Blob([ia], {type:mimeString});
 }
 
-var synth = new Animalese('/animalese.wav', function() {
+var synth = new Animalese('animalese.wav', function() {
     document.getElementById("preview").disabled = false;
     document.getElementById("download").disabled = false;
 });
