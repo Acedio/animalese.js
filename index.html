@@ -3,54 +3,90 @@
     <title>animalese_js</title>
 </head>
 <script src="riffwave.js"></script>
+<script src="Blob.js"></script>
+<script src="FileSaver.min.js"></script>
 <script>
-var load = function() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/animalese.wav');
-    xhr.responseType = 'arraybuffer';
-    xhr.onload = function(e) {
-        var letters = new Uint8Array(this.response);
-        var script = document.getElementById("text").value;
-        var data = [];
+function dataURItoBlob(dataURI) {
+    // convert base64/URLEncoded data component to raw binary data held in a string
+    var byteString;
+    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+    else
+        byteString = unescape(dataURI.split(',')[1]);
 
-        var sample_freq = 44100;
-        var channels = 1;
-        var letter_secs = 0.15;
-        var letter_spoken_secs = 0.075;
-        var letter_size = Math.floor(letter_secs * channels * sample_freq);
-        var letter_spoken_size = Math.floor(letter_spoken_secs * channels * sample_freq);
+    // separate out the mime component
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
 
-        for (var c_index = 0; c_index < script.length; c_index++) {
-            var c_value = script.toUpperCase()[c_index];
-            if (c_value >= 'A' && c_value <= 'Z') {
-                var letter_loc = letter_size * (c_value.charCodeAt(0) - 'A'.charCodeAt(0));
+    // write the bytes of the string to a typed array
+    var ia = new Uint8Array(byteString.length);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
 
-                for (var i = 0; i < letter_spoken_size; i++) {
-                    data[c_index*letter_spoken_size + i] =
-                        letters[44 + letter_loc + i];
-                }
-            } else { // non pronouncable character or space
-                for (var i = 0; i < letter_spoken_size; i++) {
-                    data[c_index*letter_spoken_size + i] = 127;
-                }
+    return new Blob([ia], {type:mimeString});
+}
+
+var letters;
+
+function animalese() {
+    var script = document.getElementById("text").value;
+    var data = [];
+
+    var sample_freq = 44100;
+    var channels = 1;
+    var letter_secs = 0.15;
+    var letter_spoken_secs = 0.075;
+    var letter_size = Math.floor(letter_secs * channels * sample_freq);
+    var letter_spoken_size = Math.floor(letter_spoken_secs * channels * sample_freq);
+
+    for (var c_index = 0; c_index < script.length; c_index++) {
+        var c_value = script.toUpperCase()[c_index];
+        if (c_value >= 'A' && c_value <= 'Z') {
+            var letter_loc = letter_size * (c_value.charCodeAt(0) - 'A'.charCodeAt(0));
+
+            for (var i = 0; i < letter_spoken_size; i++) {
+                data[c_index*letter_spoken_size + i] =
+                    letters[44 + letter_loc + i];
+            }
+        } else { // non pronouncable character or space
+            for (var i = 0; i < letter_spoken_size; i++) {
+                data[c_index*letter_spoken_size + i] = 127;
             }
         }
-
-        var wave = new RIFFWAVE();
-        wave.header.sampleRate = sample_freq;
-        wave.header.numChannels = channels;
-        wave.Make(data);
-
-        var audio = new Audio();
-        audio.src = wave.dataURI;
-        audio.play();
     }
-    xhr.send();
+
+    var wave = new RIFFWAVE();
+    wave.header.sampleRate = sample_freq;
+    wave.header.numChannels = channels;
+    wave.Make(data);
+
+    return wave;
 }
+
+function preview() {
+    var audio = new Audio();
+    audio.src = animalese().dataURI;
+    audio.play();
+}
+
+function download() {
+    saveAs(dataURItoBlob(animalese().dataURI), "animalese.wav");
+}
+
+var xhr = new XMLHttpRequest();
+xhr.open('GET', '/animalese.wav');
+xhr.responseType = 'arraybuffer';
+xhr.onload = function(e) {
+    letters = new Uint8Array(this.response);
+    document.getElementById("preview").disabled = false;
+    document.getElementById("download").disabled = false;
+}
+xhr.send();
 </script>
 <body>
     <h2>Animalese</h2>
     <textarea id="text" rows"4" cols="50">Testing out animalese_js. Did it work?</textarea>
-    <button type="button" onclick="load()">Animalese!</button>
+    <button id="preview" type="button" disabled="true" onclick="preview()">Preview!</button>
+    <button id="download" type="button" disabled="false" onclick="download()">Download!</button>
 </body>
 </html>
