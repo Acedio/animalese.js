@@ -2,7 +2,8 @@ animalese.js
 ================
 
 animalese.js is a JavaScript library that synthesizes an approximation of the
-villager speech sounds from Animal Crossing. Demo up at http://goo.gl/5Ur53s.
+villager speech sounds from Animal Crossing. I've put up a demo at
+http://acedio.github.io/animalese.js/.
 
 It uses [riffwave.js](http://www.codebase.es/riffwave/) to turn audio data into
 a DataURI, which can then be played back through an &lt;audio&gt; tag. Also makes use
