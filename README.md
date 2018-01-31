@@ -10,3 +10,6 @@ a DataURI, which can then be played back through an &lt;audio&gt; tag. Also make
 of [FileSaver.js](https://github.com/eligrey/FileSaver.js) and
 [Blob.js](https://github.com/eligrey/Blob.js). Thanks to Pedro Ladaria and Eli
 Grey for these excellent tools :)
+
+This project is not affiliated with Nintendo Co., Ltd.
+Animal Crossing is a copyright of Nintendo Co., Ltd.
