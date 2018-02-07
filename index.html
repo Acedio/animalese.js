@@ -8,39 +8,41 @@
 <script src="animalese.js"></script>
 <script>
 function dataURItoBlob(dataURI) {
-    // convert base64/URLEncoded data component to raw binary data held in a string
-    var byteString;
-    if (dataURI.split(',')[0].indexOf('base64') >= 0)
-        byteString = atob(dataURI.split(',')[1]);
-    else
-        byteString = unescape(dataURI.split(',')[1]);
+  // convert base64/URLEncoded data component to raw binary data held in a string
+  var byteString;
+  if (dataURI.split(',')[0].indexOf('base64') >= 0)
+    byteString = atob(dataURI.split(',')[1]);
+  else
+    byteString = unescape(dataURI.split(',')[1]);
 
-    // separate out the mime component
-    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+  // separate out the mime component
+  var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
 
-    // write the bytes of the string to a typed array
-    var ia = new Uint8Array(byteString.length);
-    for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-    }
+  // write the bytes of the string to a typed array
+  var ia = new Uint8Array(byteString.length);
+  for (var i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
 
-    return new Blob([ia], {type:mimeString});
+  return new Blob([ia], {type:mimeString});
 }
 
 var synth = new Animalese('animalese.wav', function() {
-    document.getElementById("preview").disabled = false;
-    document.getElementById("download").disabled = false;
+  document.getElementById("preview").disabled = false;
+  document.getElementById("download").disabled = false;
 });
 
 function preview() {
-    var audio = new Audio();
-    audio.src = synth.Animalese(document.getElementById("text").value).dataURI;
-    audio.play();
+  var audio = new Audio();
+  audio.src =
+    synth.Animalese(document.getElementById("text").value,
+                    document.getElementById("shorten").checked).dataURI;
+  audio.play();
 }
 
 function download() {
-    var wave = synth.Animalese(document.getElementById("text").value).dataURI;
-    saveAs(dataURItoBlob(wave), "animalese.wav");
+  var wave = synth.Animalese(document.getElementById("text").value).dataURI;
+  saveAs(dataURItoBlob(wave), "animalese.wav");
 }
 
 </script>
@@ -48,6 +50,7 @@ function download() {
     <h2>animalese.js Demo</h2>
     <p>More information and the source at <a href="https://github.com/Acedio/animalese.js">https://github.com/Acedio/animalese.js</a>.</p>
     <textarea id="text" rows"4" cols="50">Testing out animalese.js. Did it work?</textarea><br/>
+    <label><input id="shorten" type="checkbox"/>Shorten</label><br/>
     <button id="preview" type="button" disabled="true" onclick="preview()">Preview!</button>
     <button id="download" type="button" disabled="false" onclick="download()">Download!</button>
 </body>
