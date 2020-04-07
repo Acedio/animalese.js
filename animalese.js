@@ -3,8 +3,8 @@
 // http://github.com/acedio/animalese.js
 
 var Animalese = function(letters_file, onload) {
-  this.Animalese = function(script, shorten) {
-    function firstLast(str) {
+  this.Animalese = function(script, shorten, pitch) {
+    function shortenWord(str) {
       if (str.length > 1) {
         return str[0] + str[str.length - 1];
       }
@@ -14,39 +14,39 @@ var Animalese = function(letters_file, onload) {
     var processed_script = script;
     if (shorten) {
       processed_script =
-        script.replace(/[^a-z]/gi, ' ').split(' ').map(firstLast).join('');
+          script.replace(/[^a-z]/gi, ' ').split(' ').map(shortenWord).join('');
     }
 
     var data = [];
 
     var sample_freq = 44100;
-    var channels = 1;
-    var letter_secs = 0.15;
-    var letter_spoken_secs = 0.075;
-    var letter_size = Math.floor(letter_secs * channels * sample_freq);
-    var letter_spoken_size =
-      Math.floor(letter_spoken_secs * channels * sample_freq);
+    var library_letter_secs = 0.15;
+    var library_samples_per_letter =
+        Math.floor(library_letter_secs * sample_freq);
+    var output_letter_secs = 0.075;
+    var output_samples_per_letter =
+        Math.floor(output_letter_secs * sample_freq);
 
     for (var c_index = 0; c_index < processed_script.length; c_index++) {
-      var c_value = processed_script.toUpperCase()[c_index];
-      if (c_value >= 'A' && c_value <= 'Z') {
-        var letter_loc =
-          letter_size * (c_value.charCodeAt(0) - 'A'.charCodeAt(0));
+      var c = processed_script.toUpperCase()[c_index];
+      if (c >= 'A' && c <= 'Z') {
+        var library_letter_start =
+            library_samples_per_letter * (c.charCodeAt(0) - 'A'.charCodeAt(0));
 
-        for (var i = 0; i < letter_spoken_size; i++) {
-          data[c_index*letter_spoken_size + i] =
-            this.letters[44 + letter_loc + i];
+        for (var i = 0; i < output_samples_per_letter; i++) {
+          data[c_index * output_samples_per_letter + i] =
+              this.letter_library[44 + library_letter_start + Math.floor(i * pitch)];
         }
       } else { // non pronouncable character or space
-        for (var i = 0; i < letter_spoken_size; i++) {
-          data[c_index*letter_spoken_size + i] = 127;
+        for (var i = 0; i < output_samples_per_letter; i++) {
+          data[c_index * output_samples_per_letter + i] = 127;
         }
       }
     }
 
     var wave = new RIFFWAVE();
     wave.header.sampleRate = sample_freq;
-    wave.header.numChannels = channels;
+    wave.header.numChannels = 1;
     wave.Make(data);
 
     return wave;
@@ -57,7 +57,7 @@ var Animalese = function(letters_file, onload) {
   xhr.responseType = 'arraybuffer';
   var req = this;
   xhr.onload = function(e) {
-    req.letters = new Uint8Array(this.response);
+    req.letter_library = new Uint8Array(this.response);
     onload();
   }
   xhr.send();
