@@ -2,7 +2,7 @@ Copyright © 2014 Josh Simmons.
 
 FileSaver.min.js and Blob.js are Copyright © 2014 Eli Grey.
 
-Audio assets (`animalese.wav`) and derivatives of these assets, including but not limited to those created using animalese.js, are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+Audio assets (`animalese.wav`) are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). See the license text for details on distributing derivative works, including but not limited to those created using the animalese.js tool.
 
 Code (`animalese.js`) is distributed under the MIT License, below:
 
